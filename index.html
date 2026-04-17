@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>CONECTADOS — Hub Central</title>
+  <link rel="stylesheet" href="style.css"/>
+  <style>
+    .page-center {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      gap: 32px;
+    }
+
+    .hub-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 20px;
+      width: 100%;
+      max-width: 860px;
+    }
+
+    .hub-card {
+      background: rgba(0,255,157,0.03);
+      border: 1px solid var(--border);
+      padding: 32px 28px;
+      position: relative;
+      overflow: hidden;
+      text-decoration: none;
+      color: inherit;
+      display: block;
+      transition: border-color 0.2s, background 0.2s;
+      clip-path: polygon(12px 0%, 100% 0%, calc(100% - 12px) 100%, 0% 100%);
+    }
+
+    .hub-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, var(--green), transparent);
+      opacity: 0;
+      transition: opacity 0.2s;
+    }
+
+    .hub-card:hover {
+      background: rgba(0,255,157,0.07);
+      border-color: var(--green);
+    }
+
+    .hub-card:hover::before { opacity: 1; }
+
+    .hub-icon {
+      font-size: 2.5rem;
+      margin-bottom: 16px;
+      display: block;
+    }
+
+    .hub-card-title {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 0.85rem;
+      font-weight: 700;
+      letter-spacing: 0.2em;
+      color: var(--green);
+      margin-bottom: 10px;
+      text-transform: uppercase;
+    }
+
+    .hub-card-desc {
+      font-size: 0.8rem;
+      color: var(--text-dim);
+      line-height: 1.7;
+    }
+
+    .hub-card-tag {
+      display: inline-block;
+      margin-top: 16px;
+      font-size: 0.6rem;
+      letter-spacing: 0.2em;
+      padding: 4px 10px;
+      background: rgba(0,255,157,0.1);
+      border: 1px solid rgba(0,255,157,0.2);
+      color: var(--green);
+      text-transform: uppercase;
+    }
+
+    .hub-card.red-card {
+      border-color: rgba(255,0,79,0.2);
+    }
+    .hub-card.red-card::before {
+      background: linear-gradient(90deg, transparent, var(--red), transparent);
+    }
+    .hub-card.red-card:hover {
+      background: rgba(255,0,79,0.05);
+      border-color: var(--red);
+    }
+    .hub-card.red-card .hub-card-title { color: var(--red); }
+    .hub-card.red-card .hub-card-tag {
+      background: rgba(255,0,79,0.1);
+      border-color: rgba(255,0,79,0.2);
+      color: var(--red);
+    }
+
+    .warning-box {
+      max-width: 860px;
+      width: 100%;
+      background: rgba(255,230,0,0.05);
+      border: 1px solid rgba(255,230,0,0.3);
+      border-left: 4px solid var(--yellow);
+      padding: 16px 20px;
+      font-size: 0.75rem;
+      line-height: 1.8;
+      color: #ffe600cc;
+    }
+
+    .warning-box strong {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 0.6rem;
+      letter-spacing: 0.2em;
+      display: block;
+      margin-bottom: 6px;
+    }
+  </style>
+</head>
+<body>
+
+<div class="page-center">
+
+  <!-- LOGO -->
+  <div style="text-align:center">
+    <div class="logo">CON<span>ECT</span>ADOS</div>
+    <div class="tagline">// HUB CENTRAL DO SISTEMA</div>
+  </div>
+
+  <!-- AVISO FIREBASE -->
+  <div class="warning-box" id="firebase-warning">
+    <strong>⚠ ATENÇÃO — CONFIGURAÇÃO NECESSÁRIA</strong>
+    Antes de usar, preencha o arquivo <code>firebase-config.js</code> com os dados do seu projeto Firebase.
+    Sem isso, os dados não serão salvos e o telão não funcionará.
+    <a href="README.md" style="color:var(--yellow)" target="_blank">→ Ver instruções no README</a>
+  </div>
+
+  <!-- GRID DE PÁGINAS -->
+  <div class="hub-grid">
+
+    <a href="painel.html" class="hub-card">
+      <span class="hub-icon">🖥️</span>
+      <div class="hub-card-title">Painel / Telão</div>
+      <div class="hub-card-desc">
+        Tela que fica aberta no projetor durante o evento.
+        Exibe em tempo real quem se conectou e qual missão recebeu.
+      </div>
+      <span class="hub-card-tag">Abrir no Projetor</span>
+    </a>
+
+    <a href="gerador.html" class="hub-card">
+      <span class="hub-icon">⚙️</span>
+      <div class="hub-card-title">Gerador de QR Codes</div>
+      <div class="hub-card-desc">
+        Ferramenta privada. Gere os bilhetes premiados (missões)
+        e os bilhetes de derrota para imprimir antes do evento.
+      </div>
+      <span class="hub-card-tag">Uso Exclusivo da Organização</span>
+    </a>
+
+    <a href="sucesso.html?missao=1" class="hub-card">
+      <span class="hub-icon">📡</span>
+      <div class="hub-card-title">Tela do Ganhador</div>
+      <div class="hub-card-desc">
+        Prévia da tela que o jovem vê ao escanear um QR premiado.
+        Esta é a missão nº 1 como exemplo.
+      </div>
+      <span class="hub-card-tag">Prévia</span>
+    </a>
+
+    <a href="falha.html" class="hub-card red-card">
+      <span class="hub-icon">❌</span>
+      <div class="hub-card-title">Tela de Derrota</div>
+      <div class="hub-card-desc">
+        Prévia da tela exibida para quem escanear um QR sem prêmio.
+        Estética de erro de conexão.
+      </div>
+      <span class="hub-card-tag">Prévia</span>
+    </a>
+
+  </div>
+
+  <div class="terminal-line" style="font-size:0.65rem; opacity:0.4">
+    <span class="prompt">&gt; </span>
+    <span>AlexHFJ.github.io/conectados &nbsp;|&nbsp; sistema v1.0</span>
+  </div>
+
+</div>
+
+</body>
+</html>
