@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>CONECTADOS — Sinal Capturado!</title>
+  <link rel="stylesheet" href="style.css"/>
+  <!-- Firebase -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
+  <script src="firebase-config.js"></script>
+  <style>
+    .page-center {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    .content {
+      width: 100%;
+      max-width: 540px;
+    }
+    .signal-ring {
+      width: 80px; height: 80px;
+      border-radius: 50%;
+      border: 3px solid var(--green);
+      box-shadow: 0 0 0 8px rgba(0,255,157,0.1), 0 0 0 16px rgba(0,255,157,0.05);
+      display: flex; align-items: center; justify-content: center;
+      margin: 0 auto 24px;
+      font-size: 2rem;
+      animation: pulse-ring 2s ease-in-out infinite;
+    }
+    @keyframes pulse-ring {
+      0%,100% { box-shadow: 0 0 0 8px rgba(0,255,157,0.1), 0 0 0 16px rgba(0,255,157,0.05); }
+      50% { box-shadow: 0 0 0 12px rgba(0,255,157,0.15), 0 0 0 24px rgba(0,255,157,0.07); }
+    }
+    .status-line {
+      text-align: center;
+      font-size: 0.65rem;
+      letter-spacing: 0.3em;
+      color: var(--text-dim);
+      margin-bottom: 32px;
+    }
+    .status-line em {
+      font-style: normal;
+      color: var(--green);
+    }
+    #status-enviado {
+      display: none;
+      background: rgba(0,255,157,0.08);
+      border: 1px solid var(--green);
+      padding: 20px;
+      text-align: center;
+      margin-top: 20px;
+      font-family: 'Orbitron', sans-serif;
+      font-size: 0.75rem;
+      letter-spacing: 0.15em;
+      color: var(--green);
+      text-shadow: var(--glow);
+    }
+  </style>
+</head>
+<body>
+<div class="page-center">
+  <div class="content">
+
+    <!-- LOGO -->
+    <div class="site-header">
+      <div class="logo">CON<span>ECT</span>ADOS</div>
+    </div>
+
+    <!-- SINAL -->
+    <div class="signal-ring">📡</div>
+    <div class="status-line">STATUS: <em>CONEXÃO ESTABELECIDA</em></div>
+
+    <!-- TÍTULO -->
+    <div style="text-align:center; margin-bottom: 28px;">
+      <div class="success-title">Sinal Capturado!</div>
+      <div style="font-size:0.8rem; color: var(--text-dim); margin-top:8px;">
+        Você está <strong style="color:var(--green)">CONECTADO</strong> à rede.
+      </div>
+    </div>
+
+    <!-- MISSÃO -->
+    <div class="card">
+      <div class="card-title"><span id="missao-num">MISSÃO #1</span></div>
+      <div class="mission-box">
+        <span class="mission-label">// INSTRUÇÃO RECEBIDA</span>
+        <span id="missao-texto">Carregando...</span>
+      </div>
+      <div class="terminal-line">
+        <span class="prompt">&gt; </span>
+        <span class="output">Execute a missão após se identificar.</span>
+      </div>
+    </div>
+
+    <!-- FORMULÁRIO -->
+    <div class="card">
+      <div class="card-title">Identificar-se para o Mainframe</div>
+      <form id="form-transmitir">
+        <div class="form-group">
+          <label>Seu nome</label>
+          <input type="text" id="nome-input"
+            placeholder="Digite seu nome..." autocomplete="off" maxlength="50"/>
+        </div>
+        <button type="submit" class="btn btn-full" id="btn-transmitir">
+          📡 TRANSMITIR DADOS
+        </button>
+      </form>
+
+      <div id="status-enviado">
+        ✓ DADOS TRANSMITIDOS COM SUCESSO<br/>
+        <span style="font-family:'Share Tech Mono'; font-weight:normal; font-size:0.85rem; color:var(--text)">
+          Olhe para o telão!
+        </span>
+      </div>
+    </div>
+
+  </div>
+</div><!-- /page-center -->
+
+<script src="app.js"></script>
+<script>
+  document.addEventListener('DOMContentLoaded', initSucesso);
+</script>
+</body>
+</html>

@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>CONECTADOS — Sem Sinal</title>
+  <link rel="stylesheet" href="style.css"/>
+  <style>
+    :root { --green: #ff004f; --green-dim: #cc003f; --green-dark: #1a000b;
+            --border: rgba(255,0,79,0.25); --glow: var(--glow-red);
+            --text: #ffb3c6; --text-dim: #804050; }
+
+    .page-center {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    .content { width: 100%; max-width: 540px; text-align: center; }
+
+    /* NOISE OVERLAY */
+    .noise {
+      position: fixed;
+      inset: 0;
+      z-index: 2;
+      pointer-events: none;
+      opacity: 0.04;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+      animation: noise 0.3s steps(1) infinite;
+    }
+
+    .error-num {
+      font-family: 'VT323', monospace;
+      font-size: 8rem;
+      line-height: 1;
+      color: var(--red);
+      text-shadow: var(--glow-red);
+      margin-bottom: 0;
+    }
+
+    .static-bar {
+      height: 6px;
+      background: repeating-linear-gradient(
+        90deg,
+        var(--red) 0px, var(--red) 4px,
+        transparent 4px, transparent 12px
+      );
+      margin: 16px auto;
+      width: 80%;
+      opacity: 0.5;
+      animation: static-scroll 0.3s linear infinite;
+    }
+    @keyframes static-scroll {
+      from { background-position: 0 0; }
+      to { background-position: 16px 0; }
+    }
+
+    .msg-box {
+      background: rgba(255,0,79,0.05);
+      border: 1px solid rgba(255,0,79,0.3);
+      border-left: 4px solid var(--red);
+      padding: 20px 24px;
+      text-align: left;
+      margin: 24px 0;
+      font-size: 0.95rem;
+      line-height: 1.7;
+      color: #ffb3c6;
+    }
+
+    .blink-red {
+      animation: blink-r 0.8s step-end infinite;
+    }
+    @keyframes blink-r {
+      0%,100% { opacity: 1; }
+      50% { opacity: 0; }
+    }
+
+    .log-lines {
+      text-align: left;
+      font-size: 0.75rem;
+      color: #804050;
+      line-height: 2;
+      margin-top: 20px;
+      border-top: 1px solid rgba(255,0,79,0.15);
+      padding-top: 16px;
+    }
+    .log-lines span.r { color: var(--red); }
+  </style>
+</head>
+<body>
+  <div class="noise"></div>
+
+  <div class="page-center">
+    <div class="content">
+
+      <div class="site-header">
+        <div class="logo" style="color:var(--red); text-shadow: var(--glow-red);">
+          CON<span style="color:#fff">ECT</span>ADOS
+        </div>
+      </div>
+
+      <div class="error-num glitch" data-text="404">404</div>
+
+      <div class="error-title">ERRO DE CONEXÃO</div>
+      <div class="error-code">// signal_not_found.exe</div>
+
+      <div class="static-bar"></div>
+
+      <div class="msg-box">
+        <strong style="display:block; margin-bottom:8px; font-family:'Orbitron',sans-serif; font-size:0.7rem; letter-spacing:0.2em; color:var(--red)">
+          ⚠ TRANSMISSÃO INTERROMPIDA
+        </strong>
+        Sinal fraco detectado. Conexão recusada pelo Mainframe.<br/>
+        Não foi dessa vez, mas mantenha-se na rede!
+      </div>
+
+      <div class="log-lines">
+        <div>> <span class="r">ERR</span> packet_loss = 100%</div>
+        <div>> <span class="r">ERR</span> handshake_timeout</div>
+        <div>> <span class="r">ERR</span> node_not_found</div>
+        <div>> reconnecting... <span class="blink-red">_</span></div>
+      </div>
+
+    </div>
+  </div>
+</body>
+</html>
