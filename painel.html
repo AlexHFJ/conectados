@@ -5,14 +5,12 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>CONECTADOS — Painel ao Vivo</title>
   <link rel="stylesheet" href="style.css"/>
-  <!-- Firebase -->
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
   <script src="firebase-config.js"></script>
   <style>
     body { overflow: hidden; }
 
-    /* LAYOUT PAINEL */
     .painel-wrapper {
       display: flex;
       flex-direction: column;
@@ -30,6 +28,7 @@
       border-bottom: 1px solid var(--border);
       background: rgba(2,12,6,0.95);
       flex-shrink: 0;
+      gap: 16px;
     }
 
     .painel-logo {
@@ -39,6 +38,7 @@
       color: var(--green);
       text-shadow: var(--glow);
       letter-spacing: 0.15em;
+      white-space: nowrap;
     }
 
     .painel-stats {
@@ -47,9 +47,7 @@
       align-items: center;
     }
 
-    .stat-item {
-      text-align: center;
-    }
+    .stat-item { text-align: center; }
 
     .stat-num {
       font-family: 'Orbitron', sans-serif;
@@ -71,28 +69,159 @@
     .painel-controls {
       display: flex;
       gap: 10px;
+      align-items: center;
     }
 
-    /* MAIN AREA */
+    /* ===================== PLAYER DE MÚSICA ===================== */
+    .audio-player {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: rgba(0,255,157,0.04);
+      border: 1px solid var(--border);
+      padding: 8px 14px;
+      clip-path: polygon(6px 0%,100% 0%,calc(100% - 6px) 100%,0% 100%);
+      min-width: 220px;
+    }
+
+    .audio-player.playing {
+      border-color: var(--green);
+      box-shadow: 0 0 12px rgba(0,255,157,0.2);
+    }
+
+    .play-btn {
+      width: 32px; height: 32px;
+      border-radius: 50%;
+      border: 1px solid var(--green);
+      background: transparent;
+      color: var(--green);
+      font-size: 0.75rem;
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+      transition: all 0.2s;
+    }
+    .play-btn:hover { background: var(--green); color: var(--bg); }
+
+    .audio-info { flex: 1; min-width: 0; }
+
+    .audio-track-name {
+      font-size: 0.6rem;
+      letter-spacing: 0.15em;
+      color: var(--green);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    /* Barra de progresso */
+    .audio-progress {
+      width: 100%;
+      height: 3px;
+      background: rgba(0,255,157,0.15);
+      margin-top: 5px;
+      position: relative;
+      cursor: pointer;
+    }
+
+    .audio-progress-bar {
+      height: 100%;
+      background: var(--green);
+      box-shadow: 0 0 6px var(--green);
+      width: 0%;
+      transition: width 0.5s linear;
+    }
+
+    /* Visualizador de ondas animado */
+    .audio-bars {
+      display: flex;
+      align-items: flex-end;
+      gap: 2px;
+      height: 20px;
+      flex-shrink: 0;
+    }
+
+    .audio-bars span {
+      display: block;
+      width: 3px;
+      background: var(--green);
+      border-radius: 1px;
+      opacity: 0.4;
+      height: 4px;
+      transition: height 0.1s;
+    }
+
+    .audio-player.playing .audio-bars span {
+      opacity: 1;
+      animation: bar-dance 0.8s ease-in-out infinite;
+    }
+
+    .audio-bars span:nth-child(1) { animation-delay: 0.0s; }
+    .audio-bars span:nth-child(2) { animation-delay: 0.1s; }
+    .audio-bars span:nth-child(3) { animation-delay: 0.2s; }
+    .audio-bars span:nth-child(4) { animation-delay: 0.15s; }
+    .audio-bars span:nth-child(5) { animation-delay: 0.05s; }
+
+    @keyframes bar-dance {
+      0%,100% { height: 4px; }
+      25%  { height: 16px; }
+      50%  { height: 8px;  }
+      75%  { height: 18px; }
+    }
+
+    /* Volume */
+    .volume-wrap {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex-shrink: 0;
+    }
+
+    .volume-icon { font-size: 0.7rem; color: var(--text-dim); }
+
+    input[type=range].vol-slider {
+      -webkit-appearance: none;
+      width: 60px;
+      height: 3px;
+      background: rgba(0,255,157,0.2);
+      outline: none;
+      padding: 0;
+      border: none;
+      cursor: pointer;
+    }
+    input[type=range].vol-slider::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 10px; height: 10px;
+      border-radius: 50%;
+      background: var(--green);
+      box-shadow: 0 0 4px var(--green);
+    }
+
+    /* SEM ARQUIVO */
+    .no-audio-msg {
+      font-size: 0.55rem;
+      color: var(--text-dim);
+      letter-spacing: 0.1em;
+    }
+    /* =================== FIM PLAYER =================== */
+
+    /* MAIN */
     .painel-main {
       flex: 1;
       display: flex;
       overflow: hidden;
     }
 
-    /* COLUNA ESQUERDA — LOG */
     .log-col {
       flex: 1;
       overflow-y: auto;
-      padding: 0;
       border-right: 1px solid var(--border);
     }
 
     .log-col::-webkit-scrollbar { width: 4px; }
-    .log-col::-webkit-scrollbar-track { background: transparent; }
     .log-col::-webkit-scrollbar-thumb { background: var(--border); }
 
-    #connection-log { padding: 0; margin: 0; }
+    #connection-log { padding: 0; margin: 0; list-style: none; }
 
     #connection-log li {
       padding: 18px 28px;
@@ -101,6 +230,7 @@
       grid-template-columns: 100px 1fr auto;
       align-items: center;
       gap: 20px;
+      animation: slide-in 0.4s ease;
     }
 
     #connection-log li:first-child {
@@ -108,10 +238,9 @@
       border-left: 3px solid var(--green);
     }
 
-    /* COLUNA DIREITA — INFO */
     .info-col {
-      width: 320px;
-      padding: 28px 24px;
+      width: 300px;
+      padding: 24px 20px;
       flex-shrink: 0;
       display: flex;
       flex-direction: column;
@@ -134,14 +263,10 @@
       background: rgba(0,255,157,0.02);
       border: 1px solid var(--border);
       border-radius: 2px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
       position: relative;
       overflow: hidden;
     }
 
-    /* Nós da rede animados */
     .network-map canvas { position: absolute; inset: 0; }
 
     /* FOOTER */
@@ -158,36 +283,22 @@
       background: rgba(2,12,6,0.95);
     }
 
-    .ticker {
-      overflow: hidden;
-      flex: 1;
-      white-space: nowrap;
-    }
-
-    .ticker-inner {
-      display: inline-block;
-      animation: ticker-scroll 30s linear infinite;
-    }
-
+    .ticker { overflow: hidden; flex: 1; white-space: nowrap; }
+    .ticker-inner { display: inline-block; animation: ticker-scroll 30s linear infinite; }
     @keyframes ticker-scroll {
       from { transform: translateX(100%); }
-      to { transform: translateX(-100%); }
+      to   { transform: translateX(-100%); }
     }
 
-    /* NOTIFICAÇÃO OVERLAY */
+    /* NOTIFICAÇÃO */
     .notify-overlay {
-      position: fixed;
-      inset: 0;
+      position: fixed; inset: 0;
       background: rgba(0,0,0,0.92);
-      display: flex;
-      align-items: center;
-      justify-content: center;
+      display: flex; align-items: center; justify-content: center;
       z-index: 1000;
-      opacity: 0;
-      pointer-events: none;
+      opacity: 0; pointer-events: none;
       transition: opacity 0.4s;
     }
-
     .notify-overlay.show { opacity: 1; pointer-events: all; }
 
     .notify-box {
@@ -200,70 +311,23 @@
       position: relative;
       animation: scale-in 0.35s cubic-bezier(0.34,1.56,0.64,1);
     }
-
     .notify-box::before, .notify-box::after {
-      content: '';
-      position: absolute;
+      content: ''; position: absolute;
       width: 20px; height: 20px;
-      border-color: var(--green);
-      border-style: solid;
+      border-color: var(--green); border-style: solid;
     }
-    .notify-box::before { top: -2px; left: -2px; border-width: 3px 0 0 3px; }
-    .notify-box::after  { bottom: -2px; right: -2px; border-width: 0 3px 3px 0; }
+    .notify-box::before { top:-2px; left:-2px; border-width: 3px 0 0 3px; }
+    .notify-box::after  { bottom:-2px; right:-2px; border-width: 0 3px 3px 0; }
 
-    .notify-prefix {
-      font-size: 0.7rem;
-      letter-spacing: 0.5em;
-      color: var(--text-dim);
-      margin-bottom: 20px;
-      text-transform: uppercase;
-    }
+    .notify-prefix  { font-size:0.7rem; letter-spacing:0.5em; color:var(--text-dim); margin-bottom:20px; }
+    .notify-label   { font-size:0.65rem; letter-spacing:0.4em; color:var(--green-dim); margin-bottom:12px; }
+    #notify-name    { font-family:'Orbitron',sans-serif; font-size:clamp(2.5rem,7vw,5rem); font-weight:900; color:var(--green); text-shadow:var(--glow); line-height:1.1; }
+    #notify-mission { margin-top:24px; font-size:1.1rem; color:var(--text); max-width:600px; line-height:1.7; }
+    .notify-close   { margin-top:32px; font-size:0.6rem; letter-spacing:0.3em; color:var(--text-dim); }
 
-    .notify-label {
-      font-size: 0.65rem;
-      letter-spacing: 0.4em;
-      color: var(--green-dim);
-      margin-bottom: 12px;
-      text-transform: uppercase;
-    }
-
-    #notify-name {
-      font-family: 'Orbitron', sans-serif;
-      font-size: clamp(2.5rem, 7vw, 5rem);
-      font-weight: 900;
-      color: var(--green);
-      text-shadow: var(--glow);
-      line-height: 1.1;
-    }
-
-    #notify-mission {
-      margin-top: 24px;
-      font-size: 1.1rem;
-      color: var(--text);
-      max-width: 600px;
-      line-height: 1.7;
-    }
-
-    .notify-close {
-      margin-top: 32px;
-      font-size: 0.6rem;
-      letter-spacing: 0.3em;
-      color: var(--text-dim);
-    }
-
-    /* ESTADO VAZIO */
-    .empty-state {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      height: 100%;
-      gap: 16px;
-      color: var(--text-dim);
-    }
-
-    .empty-state .icon { font-size: 3rem; opacity: 0.3; }
-    .empty-state p { font-size: 0.75rem; letter-spacing: 0.2em; opacity: 0.5; }
+    .empty-state { display:flex; flex-direction:column; align-items:center; justify-content:center; height:200px; gap:16px; color:var(--text-dim); }
+    .empty-state .icon { font-size:3rem; opacity:0.3; }
+    .empty-state p { font-size:0.75rem; letter-spacing:0.2em; opacity:0.5; }
   </style>
 </head>
 <body>
@@ -276,25 +340,36 @@
     <div class="painel-stats">
       <div class="stat-item">
         <div class="stat-num" id="contador">0</div>
-        <div class="stat-label">Conexões Ativas</div>
+        <div class="stat-label">Conexões</div>
       </div>
-      <div class="stat-item">
-        <div class="stat-num" id="missoes-count">0</div>
-        <div class="stat-label">Missões Lançadas</div>
+    </div>
+
+    <!-- PLAYER DE MÚSICA -->
+    <div class="audio-player" id="audio-player">
+      <button class="play-btn" id="play-btn" title="Play / Pause">▶</button>
+      <div class="audio-info">
+        <div class="audio-track-name" id="track-name">musica.mp3</div>
+        <div class="audio-progress" id="progress-bar">
+          <div class="audio-progress-bar" id="progress-fill"></div>
+        </div>
+      </div>
+      <div class="audio-bars">
+        <span></span><span></span><span></span><span></span><span></span>
+      </div>
+      <div class="volume-wrap">
+        <span class="volume-icon">🔊</span>
+        <input type="range" class="vol-slider" id="vol-slider" min="0" max="1" step="0.05" value="0.7"/>
       </div>
     </div>
 
     <div class="painel-controls">
-      <button class="btn btn-red" id="btn-limpar" style="padding:10px 18px; font-size:0.6rem;">
-        ⚠ LIMPAR
-      </button>
+      <button class="btn btn-red" id="btn-limpar" style="padding:10px 18px;font-size:0.6rem;">⚠ LIMPAR</button>
     </div>
   </div>
 
   <!-- MAIN -->
   <div class="painel-main">
 
-    <!-- LOG DE CONEXÕES -->
     <div class="log-col">
       <ul id="connection-log">
         <li id="empty-msg">
@@ -308,30 +383,20 @@
       </ul>
     </div>
 
-    <!-- COLUNA INFO -->
     <div class="info-col">
       <div>
         <div class="info-title">Status da Rede</div>
         <div class="status-bar">
           <div class="status-dot" id="status-dot"></div>
-          <span id="status-text">Conectado ao Firebase</span>
+          <span id="status-text">Conectando...</span>
         </div>
       </div>
-
       <div>
         <div class="info-title">Log do Sistema</div>
-        <div id="sys-log" style="font-size:0.65rem; color:var(--text-dim); line-height:2;">
-          <div class="terminal-line">
-            <span class="prompt">&gt; </span>
-            <span>painel.html iniciado</span>
-          </div>
-          <div class="terminal-line">
-            <span class="prompt">&gt; </span>
-            <span>aguardando transmissões...</span>
-          </div>
+        <div id="sys-log" style="font-size:0.65rem;color:var(--text-dim);line-height:2;max-height:160px;overflow-y:auto;">
+          <div class="terminal-line"><span class="prompt">&gt; </span><span>painel.html iniciado</span></div>
         </div>
       </div>
-
       <div class="network-map" id="network-map">
         <canvas id="net-canvas"></canvas>
       </div>
@@ -343,19 +408,14 @@
     <div class="status-dot"></div>
     <span>MAINFRAME ONLINE</span>
     <div class="ticker">
-      <span class="ticker-inner" id="ticker-text">
-        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-        CONECTADOS — Sistema de Rede Ativa
-        &nbsp;◆&nbsp;
-        Escaneie o QR Code para participar
-        &nbsp;◆&nbsp;
-        Cada conexão fortalece a rede
-        &nbsp;◆&nbsp;
+      <span class="ticker-inner">
+        &nbsp;&nbsp;&nbsp;CONECTADOS — Sistema de Rede Ativa &nbsp;◆&nbsp;
+        Escaneie o QR Code para participar &nbsp;◆&nbsp;
+        Cada conexão fortalece a rede &nbsp;◆&nbsp;
       </span>
     </div>
   </div>
-
-</div><!-- /painel-wrapper -->
+</div>
 
 <!-- NOTIFICAÇÃO -->
 <div class="notify-overlay" id="notify-overlay">
@@ -364,40 +424,107 @@
     <div class="notify-label">NOVA CONEXÃO ESTABELECIDA</div>
     <div id="notify-name">???</div>
     <div id="notify-mission"></div>
-    <div class="notify-close">Clique em qualquer lugar para fechar &nbsp;·&nbsp; fecha automaticamente em 6s</div>
+    <div class="notify-close">Clique para fechar · fecha em 6s</div>
   </div>
 </div>
+
+<!-- ELEMENTO DE ÁUDIO -->
+<audio id="bg-audio" loop preload="auto">
+  <source src="musica.mp3" type="audio/mpeg">
+</audio>
 
 <script src="app.js"></script>
 <script>
 document.addEventListener('DOMContentLoaded', () => {
   initPainel();
   initNetworkCanvas();
+  initAudioPlayer();
 });
 
-// ---- CANVAS ANIMADO ----
+// ===================== PLAYER DE ÁUDIO =====================
+function initAudioPlayer() {
+  const audio    = document.getElementById('bg-audio');
+  const playBtn  = document.getElementById('play-btn');
+  const player   = document.getElementById('audio-player');
+  const trackName = document.getElementById('track-name');
+  const fill     = document.getElementById('progress-fill');
+  const bar      = document.getElementById('progress-bar');
+  const volSlider = document.getElementById('vol-slider');
+
+  audio.volume = parseFloat(volSlider.value);
+
+  // Tenta detectar o nome do arquivo no src
+  const src = audio.currentSrc || audio.src || '';
+  if (src) {
+    const parts = src.split('/');
+    trackName.textContent = decodeURIComponent(parts[parts.length - 1]) || 'musica.mp3';
+  }
+
+  // Play / Pause
+  playBtn.addEventListener('click', () => {
+    if (audio.paused) {
+      audio.play().then(() => {
+        playBtn.textContent = '⏸';
+        player.classList.add('playing');
+      }).catch(e => {
+        console.warn('Autoplay bloqueado pelo navegador:', e);
+        playBtn.textContent = '▶';
+      });
+    } else {
+      audio.pause();
+      playBtn.textContent = '▶';
+      player.classList.remove('playing');
+    }
+  });
+
+  // Progresso
+  audio.addEventListener('timeupdate', () => {
+    if (!audio.duration) return;
+    const pct = (audio.currentTime / audio.duration) * 100;
+    fill.style.width = pct + '%';
+  });
+
+  // Clicar na barra de progresso para pular
+  bar.addEventListener('click', (e) => {
+    if (!audio.duration) return;
+    const rect = bar.getBoundingClientRect();
+    const pct  = (e.clientX - rect.left) / rect.width;
+    audio.currentTime = pct * audio.duration;
+  });
+
+  // Volume
+  volSlider.addEventListener('input', () => {
+    audio.volume = parseFloat(volSlider.value);
+  });
+
+  // Erro ao carregar (arquivo não encontrado)
+  audio.addEventListener('error', () => {
+    trackName.textContent = '⚠ arquivo não encontrado';
+    trackName.style.color = 'var(--red)';
+  });
+}
+
+// ===================== CANVAS DE REDE =====================
 function initNetworkCanvas() {
-  const map = document.getElementById('network-map');
+  const map    = document.getElementById('network-map');
   const canvas = document.getElementById('net-canvas');
   if (!canvas || !map) return;
 
   let W, H;
   const nodes = [];
-  const NUM_NODES = 22;
-  const CON_DIST = 120;
+  const NUM   = 22;
+  const DIST  = 110;
 
   function resize() {
     W = canvas.width  = map.clientWidth;
     H = canvas.height = map.clientHeight;
   }
-
   resize();
   window.addEventListener('resize', resize);
 
-  for (let i = 0; i < NUM_NODES; i++) {
+  for (let i = 0; i < NUM; i++) {
     nodes.push({
-      x: Math.random() * W,
-      y: Math.random() * H,
+      x: Math.random() * W, y: Math.random() * H,
       vx: (Math.random() - 0.5) * 0.4,
       vy: (Math.random() - 0.5) * 0.4,
       r: Math.random() * 2.5 + 1
@@ -408,14 +535,13 @@ function initNetworkCanvas() {
     const ctx = canvas.getContext('2d');
     ctx.clearRect(0, 0, W, H);
 
-    // conexões
     for (let i = 0; i < nodes.length; i++) {
       for (let j = i + 1; j < nodes.length; j++) {
         const dx = nodes[i].x - nodes[j].x;
         const dy = nodes[i].y - nodes[j].y;
         const d  = Math.sqrt(dx*dx + dy*dy);
-        if (d < CON_DIST) {
-          ctx.strokeStyle = `rgba(0,255,157,${0.12 * (1 - d/CON_DIST)})`;
+        if (d < DIST) {
+          ctx.strokeStyle = 'rgba(0,255,157,' + (0.12 * (1 - d/DIST)) + ')';
           ctx.lineWidth = 1;
           ctx.beginPath();
           ctx.moveTo(nodes[i].x, nodes[i].y);
@@ -425,7 +551,6 @@ function initNetworkCanvas() {
       }
     }
 
-    // nós
     nodes.forEach(n => {
       ctx.fillStyle = 'rgba(0,255,157,0.6)';
       ctx.shadowColor = '#00ff9d';
@@ -434,10 +559,7 @@ function initNetworkCanvas() {
       ctx.arc(n.x, n.y, n.r, 0, Math.PI * 2);
       ctx.fill();
       ctx.shadowBlur = 0;
-
-      // mover
-      n.x += n.vx;
-      n.y += n.vy;
+      n.x += n.vx; n.y += n.vy;
       if (n.x < 0 || n.x > W) n.vx *= -1;
       if (n.y < 0 || n.y > H) n.vy *= -1;
     });
