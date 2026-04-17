@@ -5,29 +5,33 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>CONECTADOS — Terminal de Geração</title>
   <link rel="stylesheet" href="style.css"/>
-  <!-- QRCode.js -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
   <style>
-    .qr-item canvas { border: 6px solid #fff; border-radius: 2px; }
+    .qr-item canvas, .qr-item img {
+      border: 6px solid #fff;
+      border-radius: 2px;
+      display: block;
+      margin: 0 auto 10px;
+    }
     .btn-print {
-      margin-top: 24px;
+      margin-top: 0;
       background: var(--green);
       color: var(--bg);
       font-family: 'Orbitron', sans-serif;
       font-size: 0.7rem;
       font-weight: 700;
       letter-spacing: 0.2em;
-      padding: 12px 24px;
+      padding: 14px 24px;
       border: none;
       cursor: pointer;
       clip-path: polygon(8px 0%,100% 0%,calc(100% - 8px) 100%,0% 100%);
     }
     .btn-print:hover { opacity: 0.85; }
-    #area-qr { margin-top: 28px; }
-    .row-btns { display: flex; flex-wrap: wrap; gap: 12px; align-items: flex-end; }
+    .row-btns { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
     .small-label { font-size: 0.65rem; color: var(--text-dim); margin-top: 6px; }
     .config-row { display: flex; flex-wrap: wrap; gap: 16px; }
     .config-row .form-group { flex: 1; min-width: 140px; }
+    #area-qr-falhas, #area-qr-missoes { margin-top: 24px; }
   </style>
 </head>
 <body>
@@ -39,18 +43,16 @@
     <div class="tagline">// TERMINAL DE GERAÇÃO — USO EXCLUSIVO DA ORGANIZAÇÃO</div>
   </header>
 
-  <!-- STATUS / URL BASE -->
+  <!-- URL BASE -->
   <div class="card">
     <div class="card-title">Configuração do Sistema</div>
-
     <div class="form-group">
-      <label>URL BASE DO SEU SITE (GitHub Pages)</label>
+      <label>URL Base do seu site (GitHub Pages)</label>
       <input type="text" id="base-url"
-        placeholder="https://SEU_USUARIO.github.io/SEU_REPOSITORIO"
+        placeholder="https://AlexHFJ.github.io/conectados"
         value=""/>
-      <div class="small-label">Exemplo: https://joaosilva.github.io/conectados</div>
+      <div class="small-label">Cole a URL do seu GitHub Pages aqui antes de gerar.</div>
     </div>
-
     <div class="status-bar">
       <div class="status-dot"></div>
       <span>Terminal pronto para gerar QR Codes</span>
@@ -60,7 +62,6 @@
   <!-- GERAR FALHAS -->
   <div class="card">
     <div class="card-title">Gerar Conexões Falhas (Bilhetes sem prêmio)</div>
-
     <div class="config-row">
       <div class="form-group">
         <label>Quantidade de QR Codes</label>
@@ -71,19 +72,16 @@
         <input type="number" id="size-falha" value="160" min="80" max="300"/>
       </div>
     </div>
-
     <div class="row-btns">
       <button class="btn btn-red" onclick="gerarFalhas()">⚡ GERAR CONEXÕES FALHAS</button>
       <button class="btn-print" onclick="imprimirSecao('falhas')">🖨 IMPRIMIR</button>
     </div>
-
     <div id="area-qr-falhas" class="qr-grid"></div>
   </div>
 
   <!-- GERAR MISSÕES -->
   <div class="card">
     <div class="card-title">Gerar Missões (Bilhetes premiados)</div>
-
     <div class="config-row">
       <div class="form-group">
         <label>Selecione a Missão</label>
@@ -104,16 +102,14 @@
         <input type="number" id="size-missao" value="160" min="80" max="300"/>
       </div>
     </div>
-
     <div class="row-btns">
       <button class="btn" onclick="gerarMissao()">🎯 GERAR QR DE MISSÃO</button>
       <button class="btn-print" onclick="imprimirSecao('missoes')">🖨 IMPRIMIR</button>
     </div>
-
     <div id="area-qr-missoes" class="qr-grid"></div>
   </div>
 
-  <!-- GERAR TUDO -->
+  <!-- AÇÕES -->
   <div class="card">
     <div class="card-title">Ações Rápidas</div>
     <div class="row-btns">
@@ -122,33 +118,55 @@
     </div>
   </div>
 
-</div><!-- /container -->
+</div>
 
 <script>
   function getBaseUrl() {
-    let url = document.getElementById('base-url').value.trim();
-    if (!url) { alert('Configure a URL base do seu site primeiro!'); return null; }
-    return url.replace(/\/$/, ''); // remove barra final
+    const url = document.getElementById('base-url').value.trim();
+    if (!url) {
+      alert('⚠ Configure a URL base do seu site primeiro!\nExemplo: https://AlexHFJ.github.io/conectados');
+      return null;
+    }
+    return url.replace(/\/$/, '');
+  }
+
+  function criarQRItem(label) {
+    // Cria o container
+    const item = document.createElement('div');
+    item.className = 'qr-item';
+
+    // Cria o div onde o QR vai ser desenhado
+    const qrDiv = document.createElement('div');
+    item.appendChild(qrDiv);
+
+    // Cria o label SEPARADAMENTE (sem usar innerHTML no item!)
+    const labelEl = document.createElement('div');
+    labelEl.className = 'qr-label';
+    labelEl.textContent = label;
+    item.appendChild(labelEl);
+
+    return { item, qrDiv };
   }
 
   function gerarFalhas() {
-    const base = getBaseUrl(); if (!base) return;
+    const base = getBaseUrl();
+    if (!base) return;
+
     const qtd  = parseInt(document.getElementById('qtd-falha').value) || 20;
     const size = parseInt(document.getElementById('size-falha').value) || 160;
     const area = document.getElementById('area-qr-falhas');
     area.innerHTML = '';
 
     for (let i = 1; i <= qtd; i++) {
-      const item = document.createElement('div');
-      item.className = 'qr-item';
-      const qrDiv = document.createElement('div');
-      item.appendChild(qrDiv);
-      item.innerHTML += `<div class="qr-label">FALHA #${String(i).padStart(3,'0')}</div>`;
+      const label = 'FALHA #' + String(i).padStart(3, '0');
+      const { item, qrDiv } = criarQRItem(label);
       area.appendChild(item);
 
+      // Agora o qrDiv está no DOM → QRCode renderiza corretamente
       new QRCode(qrDiv, {
-        text: `${base}/falha.html`,
-        width: size, height: size,
+        text: base + '/falha.html',
+        width: size,
+        height: size,
         colorDark: '#000000',
         colorLight: '#ffffff',
         correctLevel: QRCode.CorrectLevel.M
@@ -157,23 +175,23 @@
   }
 
   function gerarMissao() {
-    const base = getBaseUrl(); if (!base) return;
+    const base = getBaseUrl();
+    if (!base) return;
+
     const missao = document.getElementById('missao-sel').value;
     const qtd    = parseInt(document.getElementById('qtd-missao').value) || 1;
     const size   = parseInt(document.getElementById('size-missao').value) || 160;
     const area   = document.getElementById('area-qr-missoes');
 
     for (let i = 1; i <= qtd; i++) {
-      const item = document.createElement('div');
-      item.className = 'qr-item';
-      const qrDiv = document.createElement('div');
-      item.appendChild(qrDiv);
-      item.innerHTML += `<div class="qr-label">MISSÃO ${missao} — #${i}</div>`;
+      const label = 'MISSÃO ' + missao + ' — #' + i;
+      const { item, qrDiv } = criarQRItem(label);
       area.appendChild(item);
 
       new QRCode(qrDiv, {
-        text: `${base}/sucesso.html?missao=${missao}`,
-        width: size, height: size,
+        text: base + '/sucesso.html?missao=' + missao,
+        width: size,
+        height: size,
         colorDark: '#000000',
         colorLight: '#ffffff',
         correctLevel: QRCode.CorrectLevel.M
@@ -187,21 +205,39 @@
   }
 
   function imprimirSecao(secao) {
-    const area = secao === 'falhas'
-      ? document.getElementById('area-qr-falhas')
-      : document.getElementById('area-qr-missoes');
+    const area = document.getElementById(
+      secao === 'falhas' ? 'area-qr-falhas' : 'area-qr-missoes'
+    );
 
-    const conteudo = area.innerHTML;
+    // Pega as imagens geradas pelo QRCode.js
+    const itens = area.querySelectorAll('.qr-item');
+    let html = '';
+    itens.forEach(item => {
+      const img = item.querySelector('canvas, img');
+      const label = item.querySelector('.qr-label');
+      let imgTag = '';
+
+      if (img && img.tagName === 'CANVAS') {
+        imgTag = '<img src="' + img.toDataURL() + '" width="160"/>';
+      } else if (img) {
+        imgTag = img.outerHTML;
+      }
+
+      html += '<div class="qr-item">' + imgTag +
+        '<div class="qr-label">' + (label ? label.textContent : '') + '</div></div>';
+    });
+
     const win = window.open('', '_blank');
     win.document.write(`
       <html><head><title>QR Codes CONECTADOS</title>
       <style>
-        body { font-family: monospace; background: #fff; }
-        .qr-grid { display: flex; flex-wrap: wrap; gap: 20px; padding: 20px; }
-        .qr-item { text-align: center; border: 1px solid #ccc; padding: 12px; }
-        canvas { display: block; }
+        body { font-family: monospace; background: #fff; margin: 0; }
+        .grid { display: flex; flex-wrap: wrap; gap: 16px; padding: 20px; }
+        .qr-item { text-align: center; border: 1px solid #ccc; padding: 12px; page-break-inside: avoid; }
+        .qr-label { font-size: 11px; margin-top: 6px; color: #333; }
+        img { display: block; border: 4px solid #fff; outline: 1px solid #000; }
       </style></head>
-      <body><div class="qr-grid">${conteudo}</div></body></html>
+      <body><div class="grid">${html}</div></body></html>
     `);
     win.document.close();
     win.focus();
